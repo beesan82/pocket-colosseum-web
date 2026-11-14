@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <title>ポケットコロシアム</title>
+  <script type="module" crossorigin src="./assets/index-B9q2NR3G.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-BxJXo1t4.css">
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>ポケットコロシアム</h1>
+      <p class="subtitle">てのひらサイズのメカドールを、組んで、鍛えて、戦わせる。</p>
+    </header>
+
+    <div id="statusbar">
+      <span id="st-level"></span>
+      <span id="st-coins">🪙 0</span>
+      <span id="st-bond">💗 絆 0</span>
+      <span id="st-rank">🏅 ブロンズ</span>
+      <button id="btn-mute" type="button" aria-label="効果音の切り替え">🔊</button>
+    </div>
+    <div id="welcome" class="hidden"></div>
+
+    <nav id="tabs">
+      <button data-tab="home" class="tab active">調整</button>
+      <button data-tab="battle" class="tab">バトル</button>
+    </nav>
+
+    <section id="tab-home" class="panel">
+      <div class="stage-wrap">
+        <canvas id="preview"></canvas>
+        <p id="speech" class="speech">「……」</p>
+        <p class="hint">ドラッグで回転。機体をタップすると話す</p>
+      </div>
+      <p id="personality-desc" class="desc"></p>
+      <div id="stats-view" class="stats"></div>
+
+      <h3>ふれあい</h3>
+      <div class="row">
+        <button id="btn-pet">なでる</button>
+        <button id="btn-talk">話しかける</button>
+      </div>
+      <p id="talk-line" class="result"></p>
+      <h3>性能</h3>
+      <div id="grow-stats" class="stats"></div>
+
+      <h3>カスタマイズ</h3>
+      <div class="mod mod--flat form-group">
+      <h4 class="form-group-title">基本</h4>
+      <label>名前 <input id="in-name" type="text" maxlength="12" /></label>
+      <label>性格
+        <select id="in-personality"></select>
+      </label>
+      </div>
+      <div class="mod mod--flat form-group">
+      <h4 class="form-group-title">外見</h4>
+      <label>ヘッドユニット
+        <select id="in-hair-style">
+          <option value="bob">標準ヘッドフィン</option>
+          <option value="twin">ツインアンテナ</option>
+          <option value="long">ロングアンテナ</option>
+          <option value="ponytail">ブレードフィン</option>
+          <option value="braid">ケーブル束</option>
+          <option value="short">ショートフィン</option>
+        </select>
+      </label>
+      <label>ヘッドカラー <input id="in-hair-color" type="color" /></label>
+      <div class="swatches" data-for="in-hair-color"></div>
+      <label>バイザーカラー <input id="in-eye-color" type="color" /></label>
+      <div class="swatches" data-for="in-eye-color"></div>
+      <label>フレームカラー <input id="in-outfit-color" type="color" /></label>
+      <div class="swatches" data-for="in-outfit-color"></div>
+      <label>アーマーアクセント
+        <select id="in-outfit-pattern">
+          <option value="plain">なし</option>
+          <option value="stripe">発光ストライプ</option>
+          <option value="dot">ドットライト列</option>
+          <option value="check">ツートーン塗装</option>
+        </select>
+      </label>
+      </div>
+      <div class="mod mod--flat form-group">
+      <h4 class="form-group-title">装備</h4>
+      <label>ヘッドギア
+        <select id="in-ear">
+          <option value="none">なし</option>
+          <option value="cat">ツインセンサー</option>
+          <option value="antenna">アンテナ</option>
+          <option value="rabbit">ロングセンサー（レア）</option>
+          <option value="headgear">バイザーバンド（スーパーレア）</option>
+        </select>
+      </label>
+      <label>武器
+        <select id="in-weapon">
+          <option value="blade">ブレード（近接）</option>
+          <option value="blaster">ブラスター（射撃・3連射）</option>
+          <option value="wand">ステッキ（射撃・精密4連射）</option>
+          <option value="missile">ミサイルランチャー（射撃・誘導4発）</option>
+          <option value="hammer">ハンマー（近接・高威力/低速）</option>
+          <option value="dagger">デュアルダガー（近接・連射）</option>
+        </select>
+      </label>
+      <p id="weapon-profile" class="desc"></p>
+      <label>バックユニット
+        <select id="in-back">
+          <option value="none">なし</option>
+          <option value="wing">ウイングユニット</option>
+          <option value="pack">サプライパック</option>
+          <option value="ribbon">ケーブルユニット</option>
+          <option value="jet">スラスター（レア）</option>
+        </select>
+      </label>
+      </div>
+      <section id="range-band-panel" class="gambit-panel range-band-panel">
+        <div class="gambit-head">
+          <h3>基本間合い</h3>
+          <span id="range-band-note" class="gambit-slots"></span>
+        </div>
+        <p class="desc">この範囲の中で戦う。範囲内では相棒の判断に任せる。</p>
+        <div id="range-band-inputs" class="range-band-inputs"></div>
+      </section>
+      <section id="gambit-panel" class="gambit-panel" aria-description="上から順に評価し、最初に当たったルールを必ず実行。カードをタップで編集、▲▼で優先順位、スイッチで ON/OFF。">
+        <div class="gambit-head">
+          <h3>戦術ガンビット</h3>
+          <span id="gambit-slots" class="gambit-slots"></span>
+        </div>
+        <p class="desc">上から順に評価し、最初に当たったルールを必ず実行。カードをタップで編集、▲▼で優先順位、スイッチで ON/OFF。</p>
+        <div id="gambit-list" class="gambit-list"></div>
+        <button id="btn-gambit-add" type="button" class="gambit-add" title="型を選んでルールを追加。上から順に評価し、最初に当たったルールを必ず実行。">＋ ルールを追加</button>
+      </section>
+      <button id="btn-reset" class="subtle">はじめからやり直す</button>
+    </section>
+
+    <section id="tab-battle" class="panel hidden">
+      <div class="stage-wrap arena-wrap">
+        <canvas id="arena"></canvas>
+        <div id="fx-layer" class="fx-layer"></div>
+        <div id="vs-hud" class="vs-hud"></div>
+        <div id="ko-hud" class="ko-hud">K.O.</div>
+      </div>
+      <button id="btn-battle-exit" aria-label="全画面を閉じる">✕</button>
+      <button id="btn-cam-mode" type="button" aria-label="カメラ: 臨場感（タップで俯瞰に切替）" aria-pressed="true">臨場感</button>
+      <div id="battle-hp"></div>
+      <div id="gambit-live" class="hidden" aria-label="ガンビットの発動状況"></div>
+      <p id="battle-meta" class="desc"></p>
+      <p id="rival-info" class="desc">「バトル開始」でライバルが現れます。バトルはフルオート。相棒の判断を応援しよう。</p>
+      <div class="battle-actions">
+        <div class="cta-wrap"><button id="btn-battle" class="primary">バトル開始</button></div>
+        <button id="btn-review" class="hidden">振り返り</button>
+      </div>
+      <p id="battle-result" class="result"></p>
+      <div id="review-panel" class="review hidden">
+        <div class="review-top">
+          <h3>振り返り</h3>
+          <button id="review-close" class="review-close" aria-label="振り返りを閉じる">✕</button>
+        </div>
+        <p id="review-head" class="desc"></p>
+        <h4>この子の判断要約</h4>
+        <p id="review-summary" class="review-summary"></p>
+        <div id="review-counts" class="stats review-counts"></div>
+        <h4>ハイライト</h4>
+        <ul id="review-highlights" class="review-highlights"></ul>
+        <div class="review-tl-head">
+          <h4>タイムライン</h4>
+          <button id="review-filter" class="review-filter">全部見る</button>
+        </div>
+        <ul id="review-timeline" class="review-timeline"></ul>
+      </div>
+      <!-- 判断ログの開閉トグル。#battle-log は全画面時の fixed 表示と #battle-result ~ #battle-log の兄弟セレクタを保つため details の外(直後の兄弟)に置く -->
+      <details class="log-fold"><summary>判断ログ</summary></details>
+      <ul id="battle-log"></ul>
+    </section>
+  </div>
+  <!-- ガンビット編集のボトムシート(第25弾)。#app の外に置く：.gambit-panel の filter を fixed の基準にしない／
+       全画面バトルの fixed 要素の祖先にもならない(安全制約 §7.1) -->
+  <div id="gambit-sheet" class="gsheet" aria-hidden="true">
+    <div class="gsheet-backdrop"></div>
+    <div class="gsheet-panel" role="dialog" aria-modal="true" aria-labelledby="gambit-sheet-title">
+      <div class="gsheet-grip" aria-hidden="true"></div>
+      <div class="gsheet-head">
+        <h3 id="gambit-sheet-title"></h3>
+        <button id="gambit-sheet-close" type="button" class="gsheet-close" aria-label="閉じる">✕</button>
+      </div>
+      <div id="gambit-sheet-body" class="gsheet-body"></div>
+      <div id="gambit-sheet-foot" class="gsheet-foot"></div>
+    </div>
+  </div>
+</body>
+</html>
